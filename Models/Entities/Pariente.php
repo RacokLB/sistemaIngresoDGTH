@@ -6,23 +6,35 @@ namespace Models\Entities;
 class Pariente {
     // Atributos de la clase Pariente
     public $id;
+    private $trabajadorId;    
     public $cedula;
     public $nombre;
     public $apellido;
-    private $trabajadorId;    
-    public $parentesco;
-    public $discapacidad;
     public $fechaNacimiento;
+    public $parentesco;
+    public $genero;
+    public $discapacidad;
 
-    public function __construct($id = null, $trabajadorId = null, $cedula = null, $nombre = null, $apellido = null, $parentesco = null, $discapacidad = null, $fechaNacimiento = null) {
+    public function __construct(
+    $id = null, 
+    $trabajadorId = null, 
+    $cedula = null, 
+    $nombre = null, 
+    $apellido = null, 
+    $fechaNacimiento = null,
+    $parentesco = null,
+    $genero = null, 
+    $discapacidad = null
+    ) {
         $this->id = $id;
         $this->trabajadorId = $trabajadorId;
         $this->cedula = $cedula;
         $this->nombre = $nombre;
         $this->apellido = $apellido;
-        $this->parentesco = $parentesco;
-        $this->discapacidad = $discapacidad;
         $this->fechaNacimiento = $fechaNacimiento;
+        $this->parentesco = $parentesco;
+        $this->genero = $genero;
+        $this->discapacidad = $discapacidad;
     }
 
     public function ObtenerTrabajadorId(): ?int {
@@ -45,12 +57,14 @@ class Pariente {
     public function setNombre(string $nombre) {$this->nombre = $nombre;}
     public function getApellido() { return $this->apellido; }
     public function setApellido(string $apellido){$this->apellido = $apellido;}
-    public function getParentesco() { return $this->parentesco; }
-    public function setParentesco(string $parentesco){$this->parentesco = $parentesco;}
-    public function getDiscapacidad() { return $this->discapacidad; }
-    public function setDiscapacidad(string $discapacidad){$this->discapacidad = $discapacidad;}
     public function getFechaNacimiento() { return $this->fechaNacimiento; }
     public function setFechaNacimiento(string $fechaNacimiento){$this->fechaNacimiento = $fechaNacimiento;}
+    public function getParentesco() { return $this->parentesco; }
+    public function setParentesco(string $parentesco){$this->parentesco = $parentesco;}
+    public function getGenero(){return $this->genero;}
+    public function setGenero(string $genero){$this->genero = $genero;}
+    public function getDiscapacidad() { return $this->discapacidad; }
+    public function setDiscapacidad(string $discapacidad){$this->discapacidad = $discapacidad;}
 
 }
     

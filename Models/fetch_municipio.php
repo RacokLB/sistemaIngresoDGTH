@@ -1,19 +1,53 @@
 <?php
-//en este script creamos una consulta a la base de datos para traer las parroquias
-require "/xampp/htdocs/login23.9.24/Config/abrir_conexion.php";
 
-$parroquia = $_POST['id_parroquia'];
+        // Set up error reporting for development
+        error_reporting(E_ALL);
+        ini_set('display_errors', 1);
 
-$query = $pdo->prepare("SELECT ID, ID_municipio, parroquias FROM tabla_parroquias WHERE ID_municipio = ':id");
-$query->bindParam(param:':id',var:$parroquia);
-$query->execute();
+        // Ensure your connection script makes $pdo available in this scope
+        require "/xampp/htdocs/sistemaIngresoDGTH/Config/abrir_conexion.php"; // Adjust path as necessary
 
-$html = "<option value='0'>Seleccionar una Parroquia</option>";
+        if (isset($_POST['ID_ciudad'])) {
+            try {
+                $ciudad = $_POST['ID_ciudad'];
 
-while($row = $resultado->fetch_assoc())
-{
-    $html.="<option value='".$row['ID'].$row['parroquias']."</option>";
+                // Prepare the query without quotes around the placeholder
+                // Assuming table_city has an ID_CITY column for the option value
+                $query = $pdo->prepare("SELECT ID, municipios FROM tabla_municipios WHERE ID_STATE = :id ORDER BY municipios ASC");
+                
+                // Bind the value
+                $query->bindValue(':id', $ciudad, PDO::PARAM_INT); // Assuming ID_STATE is an integer
 
-}
-echo $html;
+                // Execute the query
+                $query->execute();
+
+                // Initialize the HTML string with a default option
+                $html = "<option value='0'>Selecciona un Municipio</option>";
+
+                // Fetch results and build options
+                if ($query->rowCount() > 0) {
+                    while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
+                        // Ensure the option value is ID_CITY and the display text is CITY
+                        $html .= "<option value='" . htmlspecialchars($row['ID']) . "'>" . htmlspecialchars($row['municipios']) . "</option>";
+                    }
+                } else {
+                    $html .= "<option value=''>No hay municipio para esta ciudad</option>";
+                }
+                
+                // Echo the generated HTML back to the frontend
+                echo $html;
+
+            } catch (PDOException $e) {
+                // Log the actual error message for debugging, but provide a generic user message
+                error_log("Database Error in fetch_municipio.php: " . $e->getMessage());
+                echo "<option value=''>Error al cargar los municipios</option>"; // A more user-friendly error
+            } finally {
+                // Close the PDO connection
+                $pdo = null;
+            }
+        } else {
+            // If id_estado is not received, provide a default or error option
+            echo "<option value=''>Seleccione un municipio</option>";
+        }
 ?>
+    

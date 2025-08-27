@@ -8,15 +8,15 @@
 
                 case 1:
                     sleep(2);
-                    header("location: index.php");
+                    header("location: ../View/principalPagina.php");
                     exit();
                     break;
                 case 2:
-                    header("location: view/registro.php");
+                    header("location: ../View/principalPagina.php");
                     exit();
                     break;
                 default:
-                    header("location: login.php");
+                    header("location: ../View/login.php");
                     exit();
                     break;
             }
@@ -26,7 +26,7 @@
 //Here we indicate what we want to do when the login button that has name="signupbtn" is pressed.
     if(isset($_POST['signupbtn'])){
 
-        require_once "config/abrir_conexion.php";
+        require_once "../Config/abrir_conexion.php";
 
      
         //Here we indicate what we are going to do when we enter the user and password data, we also indicate what will be reflected in case no data is entered within the fields
@@ -41,11 +41,11 @@
             $query->bindParam(param:':user',var:$user);
             $query->execute();
             $user_data = $query->fetch(PDO::FETCH_ASSOC);
-            print_r($user_data);
+            
             //if the user exits catch the clave from the database
             if($user_data){
                 $hash = $user_data['clave'];
-                echo $hash; 
+              
                 
                 //verification the password vs hash password in the database and if have match
                 
@@ -56,7 +56,7 @@
                         $query_role->bindParam(param:':user',var:$user);
                         $query_role->execute();
                         $user_role_data = $query_role->fetch(mode:PDO::FETCH_ASSOC);
-                        print_r($user_role_data);
+                        
                         
                         // catch the user and rol and store into $_SESSION
                         if($user_role_data){
@@ -70,15 +70,15 @@
                                 switch ($_SESSION['rol']){
         
                                     case 1:
-                                        header("location: index.php");
+                                        header("location: ../View/principalPagina.php");
                                         exit();
                                         break;
                                     case 2:
-                                        header("location: view/registro.php");
+                                        header("location: ../View/principalPagina.php");
                                         exit();
                                         break;
                                     default:
-                                        header("location: login.php");
+                                        header("location: ../View/login.php");
                                         exit();
                                         break;
                                 }

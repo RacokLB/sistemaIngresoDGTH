@@ -17,7 +17,8 @@ class TrabajadorRepository {
             // Query 1: Get overall totals
             $sqlTotales = "SELECT
                                 (SELECT COUNT(*) FROM tabla_personal) AS totalTrabajadores,
-                                (SELECT COUNT(*) FROM parientes) AS totalParientes";
+                                (SELECT COUNT(*) FROM parientes) AS totalParientes,
+                                (SELECT COUNT(ubicacion) FROM tabla_personal) AS totalPorSede";
 
             // Query 2: Query to get personal for (sede)
             $sqlPersonalPorSede = "SELECT
@@ -56,24 +57,59 @@ class TrabajadorRepository {
         
 
         public function obtenerUltimosTrabajadores(): array { // El método ahora devuelve un array
-        $sql = "SELECT cedula, nombres, apellidos FROM tabla_personal ORDER BY id DESC LIMIT 8";
-        try {
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute();
+            $sql = "SELECT cedula, nombres, apellidos, horaRegistro FROM tabla_personal ORDER BY id DESC LIMIT 8";
+            try {
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute();
 
-            // Devuelve los datos como un array asociativo
-            $trabajadores = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            return $trabajadores; // <-- ¡Aquí está el cambio!
+                // Devuelve los datos como un array asociativo
+                $trabajadores = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                return $trabajadores; // <-- ¡Aquí está el cambio!
 
-        } catch(PDOException $e) {
-            // En caso de error, registra el mensaje y devuelve un array vacío
-            error_log('Error al obtener los últimos trabajadores: ' . $e->getMessage());
-            return []; // Devuelve un array vacío en caso de error
+            } catch(PDOException $e) {
+                // En caso de error, registra el mensaje y devuelve un array vacío
+                error_log('Error al obtener los últimos trabajadores: ' . $e->getMessage());
+                return []; // Devuelve un array vacío en caso de error
+            }
         }
-    }
+
+        public function comparativaIngresos(): array{
+            $sql = "SELECT
+                        YEAR(horaRegistro) AS ano,                 -- Extracts the year (e.g., 2023, 2024)
+                        MONTH(horaRegistro) AS mes,          -- Extracts the month number (e.g., 1 for January, 2 for February)
+                        DATE_FORMAT(horaRegistro, '%Y-%m') AS anoFormato, -- Formats as 'YYYY-MM' (e.g., '2023-01') for easy sorting/labeling
+                        DATE_FORMAT(horaRegistro, '%M') AS nombreMes,   -- Gets the full month name (e.g., 'January', 'February')
+                        COUNT(*) AS total_personas                    -- Counts the number of people for that month/year
+                    FROM
+                        tabla_personal
+                    GROUP BY
+                        ano,
+                        anoFormato,
+                        nombreMes                                    -- Group by year and month to get distinct monthly counts
+                    ORDER BY
+                        ano ASC,
+                        mes ASC                               -- Order chronologically
+                        ";
+            try{
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute();
+
+                //Devuelve los datos en un array asociativo
+                $ingresos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                return $ingresos;
+            }catch(PDOException $e){
+                error_log("Error al traer los calculos mensuales de ingresos : " . $e->getMessage());
+                return [];
+            }
+        }
 
         
-
+        /**
+         * Verificacion de existencia de la CI dentro de la base de datos previo a su envio
+         * 
+         * @param Trabajador es el objeto a ser consultado
+         * @return null en caso de que el trabajador no exista y si el trabajador existe retorna sus datos
+         */
         public function findByCedula(string $cedula): ?Trabajador {
             $sql = "SELECT * FROM tabla_personal WHERE cedula = :cedula";
             try {
@@ -303,7 +339,8 @@ class TrabajadorRepository {
                 tabla_personal.rif,
                 tabla_personal.apellidos,
                 tabla_personal.nombres,
-                tabla_personal.estatus,
+                tabla_personal.estatus, 
+                tabla_personal.compania,
                 tabla_personal.fecha_ingreso,
                 tabla_personal.tipo_trabajador,
                 tabla_general.nombre_direccion,
@@ -316,6 +353,7 @@ class TrabajadorRepository {
                 LEFT JOIN tabla_ubiespecifica ON tabla_personal.ubicacion_especifica = tabla_ubiespecifica.cod_ubiEspecifica
                 LEFT JOIN cargos ON tabla_personal.cargo = cargos.cod_cargo
                 LEFT JOIN tabla_cargodirectores ON tabla_personal.cargo_director = tabla_cargodirectores.codigo_cargo
+                WHERE tabla_personal.tipo_trabajador != 'JPV' AND tabla_personal.tipo_trabajador != 'JPS' AND tabla_personal.tipo_trabajador != 'JPI' AND tabla_personal.tipo_trabajador != 'JVA' AND tabla_personal.tipo_trabajador != 'CUF'
                 ";
             try {
                 
@@ -352,9 +390,40 @@ class TrabajadorRepository {
      /**
       *Actualiza la informacion de un trabajador en la base de datos 
       *
-      *@param Trabajador $trabajador El objeto Trabajador con la informacion actualizada
+      *@param Trabajador busca a un pariente dentro de la base de datos
       *@return bool True si la actualizacion fue exitosa, false en caso contrario
       */
+
+    public function findByCedulaPariente(int $cedulaPariente): ?Trabajador {
+            $sql = "SELECT 
+                            EXISTS (
+                                SELECT 1 FROM tabla_personal WHERE cedula = :cedula)
+                                    OR EXISTS (
+                                    SELECT 1 FROM parientes WHERE cedula  = :cedula)
+                                    AS Existe";
+
+            try {
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->bindValue(':cedula', $cedulaPariente, PDO::PARAM_INT);
+                $stmt->execute();
+                $data = $stmt->fetch();
+
+                if ($data['Existe']) {
+                    // Assuming you have a method to create a Trabajador object from array data
+                    // Or you can directly map it if you have a constructor that accepts an array
+                    $pariente = new Trabajador();
+                    // Manually map properties for example (better to have a method in entity)
+                    //$pariente->id = $data['id'] ?? null; // If you have an ID column
+                    //$pariente->cedula = $data['cedula'];
+                    // ... map all other properties from $data to $trabajador
+                    return $pariente;
+                }
+                return null; // No worker found
+            } catch (PDOException $e) {
+                error_log("Error al buscar el pariente por cédula: " . $e->getMessage());
+                return null;
+            }
+        }
 
     public function actualizar(Trabajador $trabajador): bool {
         $sql = "UPDATE tabla_personal SET cedula = :cedula, nacionalidad = :nacionalidad, rif = :rif, apellidos = :apellido, nombres = :nombre, fecha_nacimiento = :fechaNacimiento, estadoCivil = :estadoCivil, genero = :genero, discapacidad = :discapacidad, numeroContacto = :numeroContacto, estatus = :estatus, compania = :compania, fecha_ingreso = :fechaIngreso, tipo_trabajador = :tipoTrabajador, ubicacion_general = :direccionGeneral, ubicacion_especifica = :direccionEspecifica, ubicacion = :ubicacion, instruccion = :instruccion, cargo = :codCargo, cargo_director = :cargoDirector WHERE cedula = :cedula";

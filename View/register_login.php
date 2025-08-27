@@ -6,7 +6,7 @@
     <title>REGISTRO</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
-    <link href='public/style.css' rel='stylesheet'>
+    <link href='../Public/style.css' rel='stylesheet'>
 
 </head>
 <body>
@@ -14,8 +14,8 @@
         <form action="" method="POST">
             <h1>Registro</h1>
             <?php
-            require_once "/xampp/htdocs/sistemaIngresoDGTH/config/abrir_conexion.php";       
-            include_once "/xampp/htdocs/sistemaIngresoDGTH/controllers/controlador_register.php";
+            require_once "/xampp/htdocs/sistemaIngresoDGTH/Config/abrir_conexion.php";       
+            include_once "/xampp/htdocs/sistemaIngresoDGTH/Models/controlador_register.php";
             ?>
             <div class="input-box">
                 <input type="text" autocomplete="off"  placeholder="cedula de identidad" required name="cedula_identidad" id="cedula_identidad" minlength="7" maxlength="8" pattern="[0-9]{7,8}" title = "Indique numero de cedula . use solo numeros">

@@ -13,38 +13,57 @@ require_once "/xampp/htdocs/sistemaIngresoDGTH/Config/abrir_conexion.php";
             
             // usamos la funcion trim para eliminar espacio entre los datos introducidos por el usuario
             $cedula = trim($_POST['cedula_identidad']);
-            $password = trim($_POST['password']);
-            //convertimos el password con la funcion password_hash y PASSWORD_DEFAULT
-            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-            $ip = $_SERVER['REMOTE_ADDR'];
-            $cambio = trim($_POST['registerbtn']);
+         
+            //Verificamos que la cedula no exista dentro de la DB , antes de hacer la creacion del User
+            $sql = "SELECT * FROM users WHERE user = :cedula";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindValue(":cedula",$cedula,PDO::PARAM_INT);
+            $stmt->execute();
 
-            $query = $pdo->prepare("INSERT INTO users (user, clave, ip, cambio) VALUES (:user, :clave, :ip, :cambio)");
-            $query->bindParam(param:":user",var:$cedula);
-            $query->bindParam(param:":clave",var:$hashed_password);
-            $query->bindParam(param:":ip",var:$ip);
-            $query->bindParam(param:":cambio",var:$cambio);
-            print_r ($query);
-            $query->execute();
-            
-            if ($query == true) {
-                
-                echo "<h5 id='success'>Ingreso Exitoso</h5>
-                        <div class='d-flex justify-content-center'>
-                            <div class='spinner-border text-info' role='status'>
-                                <span class='visually-hidden'>Redirigiendo a login</span>
-                            </div>
-                        </div>";
-                        sleep(seconds: 2);
-                header(header: "location: login.php");
+            //Agregamos un condicional para corroborar if existe el user redirigir al login.php
+            if($stmt == true){
+
+                echo 
+                    "    
+                        <div class='alert alert-danger' role='alert'>El Usuario ya se encuentra Registrado</div>
+                        
+                        <a href='../View/login.php' class='fs-4 bg-dark'>Click aqui para ir al login</a>
+                    ";
+                        
+                    
                 exit();
-            } else {
-                echo "<h5 id='error'>Verifique su Usuario y la contraseña ingresada</h5>";
-            }
-        }else {
-            echo "<h3 id='error'>Cedula debe tener entre 7 y 8 caracteres</h3>";
+            //Aqui se hace la query para la creacion del User 
+            }else{
+                $password = trim($_POST['password']);
+                //convertimos el password con la funcion password_hash y PASSWORD_DEFAULT
+                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+                $ip = $_SERVER['REMOTE_ADDR'];
+                $cambio = trim($_POST['registerbtn']);
 
-        }
+                $query = $pdo->prepare("INSERT INTO users (user, clave, ip, cambio) VALUES (:user, :clave, :ip, :cambio)");
+                $query->bindParam(param:":user",var:$cedula);
+                $query->bindParam(param:":clave",var:$hashed_password);
+                $query->bindParam(param:":ip",var:$ip);
+                $query->bindParam(param:":cambio",var:$cambio);
+                
+                $query->execute();
+                
+                if ($query == true) {
+                    
+                    echo "<h5 id='success'>Creacion Exitosa</h5>
+                            <div class='d-flex justify-content-center'>
+                                <div class='spinner-border text-info' role='status'>
+                                    <span class='visually-hidden'>Redirigiendo a login</span>
+                                </div>
+                            </div>";
+                            sleep(seconds: 2);
+                    header(header: "location: ../View/login.php");
+                    exit();
+                    } else {
+                        echo "<h5 id='error'>Verifique su Usuario y la contraseña ingresada</h5>";
+                    }
+            }
+        }       
     }
     
 ?>
