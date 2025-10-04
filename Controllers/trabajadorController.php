@@ -51,7 +51,7 @@ use PDO;
     /**
      * Procesa la creación de un nuevo trabajador.
      *
-     * @return void // no es necesario que retorne un valor , ya que solo necesitamos una confirmacion de exito o fracaso
+     * @return void // no es necesario que retorne un valor , ya que solo se necesita una confirmacion de exito o fracaso
      */
     public function crearTrabajador() {
 
@@ -242,7 +242,7 @@ use PDO;
         // 3. Guardar el nuevo trabajador utilizando el Repository
         $trabajadorGuardado = $this->trabajadorRepository->guardar($nuevoTrabajador);
 
-        // 4. Retornar una respuesta (por ejemplo, el trabajador creado o un mensaje de éxito)
+        // 4. Retornar una respuesta 
          if ($trabajadorGuardado) {
             http_response_code(201); // Código de "Creado"
             header('Content-Type: application/json');
@@ -262,7 +262,7 @@ use PDO;
      */
     public function actualizarTrabajador(int $id) {
         // 1. Obtener los datos actualizados del trabajador desde la petición (PUT data, etc.)
-        // (Similar a crearTrabajador, pero asegurándote de incluir el ID)
+       
         $datosActualizados = $_POST; // Ejemplo básico
 
         // 2. Obtener el trabajador existente para asegurarse de que existe
