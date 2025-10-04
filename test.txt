@@ -1,0 +1,346 @@
+parienteController.php funciona de la siguiente manera Desglose del ParienteControllerAquí tienes un desglose detallado de cada sección del código:1. Declaración de Namespace e Imports<?php
+
+namespace sistemaIngresoDGTH\Controllers;
+
+use Models\Repositories\parienteRepository;
+use PDO;
+USE PDOException;
+namespace sistemaIngresoDGTH\Controllers;: Declara el espacio de nombres (namespace) de la clase. Esto ayuda a organizar las clases en PHP y evitar conflictos de nombres. En este caso, la clase ParienteController pertenece al espacio de nombres sistemaIngresoDGTH\Controllers.use Models\Repositories\parienteRepository;: Importa la clase parienteRepository desde el espacio de nombres Models\Repositories. Esto permite usar la clase parienteRepository dentro de ParienteController sin tener que escribir su nombre completo cada vez.use PDO;: Importa la clase PDO (PHP Data Objects), que se utiliza para interactuar con la base de datos.USE PDOException;: Importa la clase PDOException, que se utiliza para manejar errores relacionados con la base de datos.2. Definición de la Clase ParienteControllerclass ParienteController{
+
+    private $parienteRepository;
+    private $pdo;
+
+    public function __construct(PDO $pdo){
+        $this->pdo = $pdo;
+        $this->parienteRepository = new parienteRepository(pdo: $this->pdo);
+    }
+class ParienteController { ... }: Define la clase ParienteController. Esta clase se encarga de manejar las solicitudes relacionadas con la gestión de parientes en tu aplicación.private $parienteRepository;: Declara una propiedad privada $parienteRepository que almacenará una instancia de la clase parienteRepository. Esta instancia se utilizará para interactuar con la base de datos y realizar operaciones relacionadas con los parientes.private $pdo;: Declara una propiedad privada $pdo que almacenará una instancia de la clase PDO. Esta instancia se utilizará para establecer la conexión con la base de datos.public function __construct(PDO $pdo){ ... }: Define el constructor de la clase. El constructor se ejecuta automáticamente cuando se crea un nuevo objeto de la clase ParienteController.$this->pdo = $pdo;: Asigna la instancia de PDO proporcionada al constructor a la propiedad $pdo de la clase. Esto permite que la clase ParienteController utilice la conexión a la base de datos.$this->parienteRepository = new parienteRepository(pdo: $this->pdo);: Crea una nueva instancia de la clase parienteRepository, pasándole la instancia de PDO como argumento. Luego, asigna esta instancia a la propiedad $parienteRepository de la clase. Esto asegura que el repositorio tenga acceso a la conexión de la base de datos.3. Método listarParientespublic function listarParientes(int $id){
+    $parientes = $this->parienteRepository->obtenerPorTrabajadorId(trabajadorId: $id);
+
+    if($parientes){
+        header('Content-type: application/json');
+        echo json_encode($parientes);
+    }else{
+        http_response_code(404);
+        header('Content-type: application/json');
+        echo json_encode(['error' => 'No se encontraron parientes para el trabajador']);
+    }
+}
+public function listarParientes(int $id){ ... }: Define el método listarParientes. Este método se encarga de obtener la lista de parientes asociados a un trabajador, dado su ID.$parientes = $this->parienteRepository->obtenerPorTrabajadorId(trabajadorId: $id);: Llama al método obtenerPorTrabajadorId del objeto $parienteRepository para obtener la lista de parientes del trabajador con el ID $id.if ($parientes) { ... } else { ... }: Verifica si se encontraron parientes:Si se encontraron parientes ($parientes no está vacío):header('Content-type: application/json');: Establece la cabecera de la respuesta HTTP como application/json, indicando que la respuesta será en formato JSON.echo json_encode($parientes);: Convierte el array $parientes a formato JSON y lo imprime en la salida. Esta es la respuesta que se envía al cliente (por ejemplo, una aplicación JavaScript o Insomnia).Si no se encontraron parientes:http_response_code(404);: Establece el código de estado de la respuesta HTTP en 404 (No encontrado).header('Content-type: application/json');: Establece la cabecera de la respuesta HTTP como application/json.echo json_encode(['error' => 'No se encontraron parientes para el trabajador']);: Imprime un mensaje de error en formato JSON, indicando que no se encontraron parientes para el trabajador.4. Método crearParientepublic function crearPariente(){
+    //1. Obtener los datos de los parientes del nuevo trabajador
+    $datosPariente = $_POST;
+    $errores = [];
+
+    // Validación de datos
+    if(isset($datosPariente['nombre']) && !empty($datosPariente['nombre'])){
+        if(mb_strlen($datosPariente['nombre'], 'UTF-8') < 3 || mb_strlen($datosPariente['nombre'], 'UTF-8') > 255) { //Agregué un maximo
+            $errores['nombre'] = 'El nombre debe tener entre 3 y 255 caracteres';
+        }
+    }else{
+        $errores['nombre'] = 'El nombre es requerido';
+    }
+
+    if(isset($datosPariente['apellido'])&& !empty($datosPariente['apellido'])){
+        if(mb_strlen($datosPariente['apellido'], 'UTF-8') < 3 || mb_strlen($datosPariente['apellido'], 'UTF-8') > 255){ //Agregué un maximo
+            $errores['apellido'] = 'El apellido debe tener entre 3 y 255 caracteres';
+        }
+    }else{
+        $errores['apellido'] = 'El apellido es requerido';
+    }
+
+    if(isset($datosPariente['fechaNacimiento']) && !empty($datosPariente['fechaNacimiento'])){
+       //TODO: Validar el formato de la fecha
+    }else{
+        $errores['fechaNacimiento'] = 'La fecha de nacimiento es requerida';
+    }
+
+    if(isset($datosPariente['parentesco']) && !empty($datosPariente['parentesco'])){
+         if(mb_strlen($datosPariente['parentesco'], 'UTF-8') < 3 || mb_strlen($datosPariente['parentesco'], 'UTF-8') > 50){ //Agregué un maximo
+            $errores['parentesco'] = 'El parentesco debe tener entre 3 y 50 caracteres';
+        }
+    }else{
+        $errores['parentesco'] = 'El parentesco es requerido';
+    }
+
+    if(isset($datosPariente['discapacidad']) && !empty($datosPariente['discapacidad'])){
+        if (filter_var($datosPariente['discapacidad'], FILTER_VALIDATE_BOOLEAN) === false) {
+             $errores['discapacidad'] = 'Discapacidad debe ser un valor booleano';
+        }
+    }else{
+        $errores['discapacidad'] = 'La discapacidad es requerida';
+    }
+
+    if(!empty($errores)){
+        http_response_code(400);
+        header('Content-Type: application/json');
+        echo json_encode(['errors' => $errores]);
+        return;
+    }
+
+    //2. Crear una instancia del objeto Pariente
+    $nuevoPariente = new \Models\Entities\Pariente( // Asegúrate de que la ruta de la clase Pariente sea correcta
+        null,
+        $datosPariente['trabajadorId'] ?? null,
+        $datosPariente['cedula'] ?? null,
+        $datosPariente['nombre'] ?? null,
+        $datosPariente['apellido'] ?? null,
+        $datosPariente['fechaNacimiento'] ?? null,
+        $datosPariente['parentesco'] ?? null,
+        filter_var($datosPariente['discapacidad'], FILTER_VALIDATE_BOOLEAN) ?? null //Convierte a bool
+    );
+
+    //3. Guardar a los parientes del trabajador utilizando el parienteRepository
+    try{
+        $parienteGuardado = $this->parienteRepository->guardar($nuevoPariente);
+         if($parienteGuardado){
+            http_response_code(201);
+            header('Content-Type: application/json');
+            echo json_encode($parienteGuardado);
+        }else{
+            http_response_code(500);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'No se pudo crear el pariente']);
+        }
+    }catch(PDOException $e){
+        http_response_code(500);
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Error al guardar en la base de datos: ' . $e->getMessage()]);
+        return;
+
+    }
+
+
+}
+public function crearPariente(){ ... }: Define el método crearPariente. Este método se encarga de crear un nuevo pariente en la base de datos.$datosPariente = $_POST;: Obtiene los datos del pariente a crear desde la variable superglobal $_POST. Se asume que los datos se envían desde un formulario HTML o una petición HTTP POST (como la que harías con Insomnia).$errores = [];: Inicializa un array $errores que se utilizará para almacenar los mensajes de error de validación.Validación de datos: Se realizan varias validaciones para asegurar que los datos del pariente sean válidos. Por ejemplo, se verifica que los campos requeridos estén presentes y que tengan una longitud válida.if (!empty($errores)) { ... }: Si se encuentran errores de validación:http_response_code(400);: Establece el código de estado de la respuesta HTTP en 400 (Bad Request).header('Content-Type: application/json');: Establece la cabecera de la respuesta HTTP como application/json.echo json_encode(['errors' => $errores]);: Imprime los errores en formato JSON.return;: Detiene la ejecución del método.$nuevoPariente = new \Models\Entities\Pariente(...);: Crea una nueva instancia de la clase Pariente (asumiendo que tienes una clase Pariente en Models\Entities) con los datos proporcionados.try { ... } catch (PDOException $e) { ... }: Envuelve el código que interactúa con la base de datos en un bloque try...catch para manejar posibles excepciones.$parienteGuardado = $this->parienteRepository->guardar($nuevoPariente);: Llama al método guardar del objeto $parienteRepository para guardar el nuevo pariente en la base de datos.Si la operación de guardado tiene éxito:http_response_code(201);: Establece el código de estado de la respuesta HTTP en 201 (Created).header('Content-Type: application/json');: Establece la cabecera de la respuesta HTTP como application/json.echo json_encode($parienteGuardado);: Imprime los datos del pariente guardado en formato JSON.Si la operación de guardado falla:http_response_code(500);: Establece el código de estado de la respuesta HTTP en 500 (Internal Server Error).header('Content-Type: application/json');: Establece la cabecera de la respuesta HTTP como application/json.echo json_encode(['error' => 'No se pudo crear el pariente']);: Imprime un mensaje de error en formato JSON.Si ocurre una excepción PDOException:http_response_code(500);: Establece el código de estado de la respuesta HTTP en 500 (Internal Server Error).header('Content-Type: application/json');: Establece la cabecera de la respuesta HTTP como application/json.echo json_encode(['error' => 'Error al guardar en la base de datos: ' . $e->getMessage()]);: Imprime un mensaje de error en formato JSON, incluyendo el mensaje de la excepción.return;: Detiene la ejecución del método.5. Método actualizarParientepublic function actualizarPariente(int $id){
+    //1. obtener los datos actualizados del pariente desde el formulario de actualizacion
+    $datosActualizados = $_POST;
+
+    // Se recibe el ID del pariente que se va a actualizar
+    if (!isset($datosActualizados['parienteId']) || !is_numeric($datosActualizados['parienteId'])) {
+        http_response_code(400);
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Se requiere el ID del pariente para actualizar.']);
+        return;
+    }
+    $parienteIdActualizar = (int) $datosActualizados['parienteId'];
+
+    //2. Obtener la lista de parientes del trabajador
+    $parientesDelTrabajador = $this->parienteRepository->obtenerPorTrabajadorId($id); //Se usa $id del trabajador
+
+    if(!$parientesDelTrabajador){
+        http_response_code(404);
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'No se encontraron parientes para este trabajador.']);
+        return;
+    }
+
+    //3. Buscar el pariente específico a actualizar dentro de la lista
+    $parienteExistente = null;
+    foreach ($parientesDelTrabajador as $pariente) {
+        if ($pariente->getId() === $parienteIdActualizar) {
+            $parienteExistente = $pariente;
+            break;
+        }
+    }
+
+    if(!$parienteExistente){
+        http_response_code(404);
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Pariente no encontrado con el ID proporcionado.']);
+        return;
+    }
+
+    //4. Actualizar las propiedades del objeto Pariente existente con los nuevos datos
+     $errores = [];
+    if(isset($datosActualizados['nombre']) && !empty($datosActualizados['nombre'])){
+        if(mb_strlen($datosActualizados['nombre'], 'UTF-8') < 3 || mb_strlen($datosActualizados['nombre'], 'UTF-8') > 255) { //Agregué un maximo
+            $errores['nombre'] = 'El nombre debe tener entre 3 y 255 caracteres';
+        }
+    }else{
+        $errores['nombre'] = 'El nombre es requerido';
+    }
+
+    if(isset($datosActualizados['apellido'])&& !empty($datosActualizados['apellido'])){
+        if(mb_strlen($datosActualizados['apellido'], 'UTF-8') < 3 || mb_strlen($datosActualizados['apellido'], 'UTF-8') > 255){ //Agregué un maximo
+            $errores['apellido'] = 'El apellido debe tener entre 3 y 255 caracteres';
+        }
+    }else{
+        $errores['apellido'] = 'El apellido es requerido';
+    }
+
+    if(isset($datosActualizados['fechaNacimiento']) && !empty($datosActualizados['fechaNacimiento'])){
+       //TODO: Validar el formato de la fecha
+    }else{
+        $errores['fechaNacimiento'] = 'La fecha de nacimiento es requerida';
+    }
+
+    if(isset($datosActualizados['parentesco']) && !empty($datosActualizados['parentesco'])){
+         if(mb_strlen($datosActualizados['parentesco'], 'UTF-8') < 3 || mb_strlen($datosActualizados['parentesco'], 'UTF-8') > 50){ //Agregué un maximo
+            $errores['parentesco'] = 'El parentesco debe tener entre 3 y 50 caracteres';
+        }
+    }else{
+        $errores['parentesco'] = 'El parentesco es requerido';
+    }
+
+   if(isset($datosActualizados['discapacidad']) && !empty($datosActualizados['discapacidad'])){
+        if (filter_var($datosActualizados['discapacidad'], FILTER_VALIDATE_BOOLEAN) === false) {
+             $errores['discapacidad'] = 'Discapacidad debe ser un valor booleano';
+        }
+    }else{
+        $errores['discapacidad'] = 'La discapacidad es requerida';
+    }
+
+    if(!empty($errores)){
+        http_response_code(400);
+        header('Content-Type: application/json');
+        echo json_encode(['errors' => $errores]);
+        return;
+    }
+    $parienteExistente->setCedula($datosActualizados['cedula'] ?? $parienteExistente->getCedula());
+    $parienteExistente->setNombre($datosActualizados['nombre'] ?? $parienteExistente->getNombre());
+    $parienteExistente->setApellido($datosActualizados['apellido'] ?? $parienteExistente->getApellido());
+    $parienteExistente->setFechaNacimiento($datosActualizados['fechaNacimiento'] ??
+        $parienteExistente->getFechaNacimiento());
+    $parienteExistente->setParentesco($datosActualizados['parentesco'] ??
+        $parienteExistente->getParentesco());
+    $parienteExistente->setDiscapacidad(filter_var($datosActualizados['discapacidad'], FILTER_VALIDATE_BOOLEAN) ??
+        $parienteExistente->getDiscapacidad());
+
+    //5. Guardar los cambios utilizando el Repository (asumiendo que tienes un método para actualizar por ID)
+    try{
+         if($this->parienteRepository->actualizar($parienteExistente)){
+            header('Content-Type: application/json');
+            echo json_encode(['message' => 'Pariente actualizado con exito']);
+        }else{
+            http_response_code(500);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'No se pudo actualizar el pariente']);
+        }
+    }catch(PDOException $e){
+         http_response_code(500);
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Error al actualizar en la base de datos: ' . $e->getMessage()]);
+        return;
+    }
+
+}
+public function actualizarPariente(int $id){ ... }: Define el método actualizarPariente. Este método se encarga de actualizar la información de un pariente existente en la base de datos. Recibe el ID del trabajador.$datosActualizados = $_POST;: Obtiene los datos actualizados del pariente desde la variable superglobal $_POST.if (!isset($datosActualizados['parienteId']) || !is_numeric($datosActualizados['parienteId'])) { ... }: Valida que se haya proporcionado el ID del pariente a actualizar (parienteId) en la petición. Si no se proporciona o no es un número, se devuelve un error.$parienteIdActualizar = (int) $datosActualizados['parienteId'];: Obtiene el ID del pariente a actualizar y lo convierte a entero.$parientesDelTrabajador = $this->parienteRepository->obtenerPorTrabajadorId($id);: Llama al método obtenerPorTrabajadorId del repositorio para obtener la lista de parientes del trabajador. Se usa el $id del trabajador que se recibe como parámetro de la función.if (!$parientesDelTrabajador) { ... }: Verifica si se encontraron parientes para el trabajador. Si no se encuentran, se devuelve un error 404.foreach ($parientesDelTrabajador as $pariente) { ... }: Itera sobre la lista de parientes del trabajador para encontrar el pariente específico que se va a actualizar, comparando el id de cada pariente con el $parienteIdActualizar.if (!$parienteExistente) { ... }: Si no se encuentra el pariente con el ID proporcionado, se devuelve un error 404.Se realizan validaciones similares a las de crearPariente$parienteExistente->setCedula(...): Actualiza las propiedades del objeto $parienteExistente con los nuevos valores proporcionados en $datosActualizados.try { ... } catch (PDOException $e) { ... }: Envuelve la llamada al método actualizar del repositorio en un bloque try...catch para manejar excepciones de la base de datos.$this->parienteRepository->actualizar($parienteExistente);: Llama al método actualizar del repositorio para guardar los cambios en la base de datos. Se pasa el objeto $parienteExistente que ya ha sido modificado.Si la actualización tiene éxito, se devuelve un mensaje de éxito.Si la actualización falla o se produce una excepción, se devuelve un mensaje de error.6. Método eliminarParientepublic function eliminarPariente(int $id){
+   try{
+        if($this->parienteRepository->eliminar($id)){
+            http_response_code(204);
+            //No se suele enviar cuerpo en la respuesta 204
+        }else{
+            http_response_code(404);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Pariente no encontrado']);
+        }
+   }catch(PDOException $e){
+        http_response_code(500);
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Error al eliminar de la base de datos: ' . $e->getMessage()]);
+        return;
+   }
+}
+// rellenar la tabla con los datos json traidos de la API
+const tabla = document.getElementById('tabla');
+
+        fetch("http://localhost/sistemaIngresoDGTH/index.php/?api=trabajadores")
+          .then(response => {
+            if(!response.ok){
+              throw new Error(`HTTP error! status: ${response.status}`)
+            }
+            return response.json();
+          })
+          .then(trabajadores =>{
+            console.log(trabajadores);
+            //Verificamos si el array trae datos para luego insertar los datos en la fila
+            if(trabajadores && trabajadores.length > 0){
+              trabajadores.forEach(trabajador => {
+                const fila = tabla.insertRow()
+                fila.dataset.trabajadorId = trabajador.id; //Guardar el ID en la fila
+
+                //Crear las celdas para cada columna
+                fila.insertCell().textContent = trabajador.id;
+                fila.insertCell().textContent = trabajador.nacionalidad;
+                fila.insertCell().textContent = trabajador.cedula;
+                fila.insertCell().textContent = trabajador.nombre;
+                fila.insertCell().textContent = trabajador.apellido;
+                fila.insertCell().textContent = trabajador.estadoCivil;
+                fila.insertCell().textContent = trabajador.fechaNacimiento;
+                fila.insertCell().textContent = trabajador.genero;
+                fila.insertCell().textContent = trabajador.numeroContacto;
+                fila.insertCell().textContent = trabajador.rif;
+                fila.insertCell().textContent = trabajador.fechaIngreso;
+                fila.insertCell().textContent = trabajador.estado;
+                fila.insertCell().textContent = trabajador.ciudad;
+                fila.insertCell().textContent = trabajador.municipio;
+                fila.insertCell().textContent = trabajador.parroquia;
+                fila.insertCell().textContent = trabajador.direccion;
+                fila.insertCell().textContent = trabajador.tipoTrabajador;
+                fila.insertCell().textContent = trabajador.direccionGeneral;
+                fila.insertCell().textContent = trabajador.direccionEspecifica;
+                fila.insertCell().textContent = trabajador.codCargo;
+                fila.insertCell().textContent = trabajador.pensionSobreviviente;
+                fila.insertCell().textContent = trabajador.familiarCNE;
+                fila.insertCell().textContent = trabajador.padresComunCNE;
+
+                
+              })
+            }else{
+              const fila = tabla.insertRow()
+              const celda = fila.insertCell()
+              celda.colSpan = 23;
+              celda.textContent = 'No se encontraron trabajadores';
+              celda.style.textAlign = 'center';
+            }
+          })
+          .catch(error =>{
+            console.error('Error al obtener los trabajadores:', error);
+            const fila = tabla.insertRow();
+            const celda = fila.insertCell();
+            celda.colSpan = 23;
+            celda.textContent = 'Error al cargar los datos.';
+            celda.style.textAlign = 'center';
+          })
+      });
+
+public function eliminarPariente(int $id){ ... }: Define el método eliminarPariente. Este método se encarga de eliminar un pariente de la base de datos, dado su ID.try { ... } catch (PDOException $e) { ... }:  Envuelve la llamada al método eliminar del repositorio en un bloque try...catch para manejar excepciones de la base de datos.$this->parienteRepository->eliminar($id);: Llama al método eliminar del repositorio para eliminar el pariente con el ID $id.Si la eliminación tiene éxito, se establece el código de estado de la respuesta HTTP en 204 (No Content).  Normalmente, las respuestas 204 no contienen cuerpo.Si la eliminación falla (por ejemplo, si no se encuentra el pariente), se devuelve un error 404.Si ocurre una excepción PDOException, se devuelve un error 500.En resumen, este controlador define la lógica para gestionar parientes en tu aplicación, incluyendo las operaciones de listar, crear, actualizar y eliminar. Utiliza un repositorio (parienteRepository) para interactuar con la base de datos y maneja los datos de las peticiones HTTP ($_POST) para realizar las operaciones. También incluye validaciones y manejo de errores para asegurar la integridad de los datos y proporcionar respuestas adecuadas al cliente.
+
+
+this part is coming from crearFuncionario.php 
+var $formSections = $('.form-section');
+                var $progressBar = $('.progress-bar');
+                var currentSectionIndex = 0;
+
+                function updateProgressBar() {
+                var progress = ((currentSectionIndex + 1) / $formSections.length) * 100;
+                $progressBar.css('width', progress + '%').attr('aria-valuenow', progress).text(Math.round(progress) + '%');
+                }
+
+
+                function showCurrentSection() {
+                    $formSections.removeClass('current').eq(currentSectionIndex).addClass('current');
+                    updateProgressBar();
+                }
+
+
+
+                $('.next-step').click(function() {
+                    if (currentSectionIndex < $formSections.length - 1) {
+                    currentSectionIndex++;
+                    showCurrentSection();
+                    }
+                });
+
+                $('.prev-step').click(function() {
+                    if (currentSectionIndex > 0) {
+                        currentSectionIndex--;
+                        showCurrentSection();
+                    }
+                });
+
+                
+                // Mostrar la primera sección al cargar la página
+                showCurrentSection();
+
+                
