@@ -4,7 +4,7 @@
             if(!isset($_SESSION['rol'])){
                 header("location: login.php");
             }else{
-                if($_SESSION['rol'] != 1){ // Es buena práctica usar '!=' en lugar de '!='
+                if($_SESSION['rol'] != 1){ 
                     header("location: login.php");
                 }
             }
@@ -706,7 +706,7 @@ $querySede->execute();
 
                         debounceTimer = setTimeout(() => {
                             // Construye la URL de la API con la cédula como parámetro
-                            // Asegúrate de codificar la cédula para URLs seguras
+                        
                     
                             const apiUrl = `http://10.100.202.66/sistemaIngresoDGTH/index.php/?api=validar_cedula&id=` + cedulaValor;
 
@@ -755,8 +755,8 @@ $querySede->execute();
                                 });
                         }, 500); // Espera 500 milisegundos (0.5 segundos) antes de enviar la petición
                     } else {
-                        // Si la cédula es demasiado corta para enviar al backend (según tu criterio)
-                        cedulaError.textContent = ''; // O un mensaje como "Continúa escribiendo..."
+                        // Si la cédula es demasiado corta para enviar al backend
+                        cedulaError.textContent = ''; 
                     }
                 });
 
@@ -820,59 +820,54 @@ $querySede->execute();
                 function showCurrentSection() {
                     $formSections.removeClass('current').eq(currentSectionIndex).addClass('current');
                     updateProgressBar();
-                    // Optional: Focus the first visible input of the newly visible section for accessibility
+                    
                     $formSections.eq(currentSectionIndex).find('input, select, textarea').not(':disabled, [type="hidden"]').first().focus();
                 }
 
-                // --- Validation Function for a Section ---
-                // This function now uses the browser's checkValidity()
+              
                 function validateCurrentSection() {
                     var $currentVisibleSection = $formSections.eq(currentSectionIndex);
-                    // Find all immediate form controls within the current section
-                    // Use :input to select all form elements (input, textarea, select)
-                    var $formControls = $currentVisibleSection.find(':input:visible'); // Only visible and required inputs
+                
+                    var $formControls = $currentVisibleSection.find(':input:visible'); 
 
                     let sectionIsValid = true;
 
                     $formControls.each(function() {
-                        if (!this.checkValidity()) { // checkValidity() is a native browser method
+                        if (!this.checkValidity()) { 
                             sectionIsValid = false;
-                            // The browser will usually handle the visual feedback (red border, tooltip)
-                            // You might want to add a custom class here for consistency if needed:
-                            // $(this).addClass('is-invalid');
-                            return false; // Break from .each() loop
+            
+                            return false; 
                         } else {
-                            // $(this).removeClass('is-invalid'); // Remove if valid
+                
                         }
                     });
 
                     return sectionIsValid;
                 }
 
-                // --- Handler for "Next" button click ---
+           
                 $('.next-step').click(function(e) {
                     e.preventDefault();
 
-                    // Validate the current section
+             
                     if (!validateCurrentSection()) {
                         Swal.fire({
                             icon: 'error',
                             title: 'Error de Validación',
                             text: 'Por favor, complete todos los campos requeridos en esta sección antes de continuar.',
                         });
-                        // The browser's native validation should have already focused the first invalid element
-                        // No explicit focus needed here unless you have custom validation not covered by HTML5
-                        return; // Stop if validation fails
+                       
+                        return; 
                     }
 
-                    // If validation passes, proceed to the next step
+                   
                     if (currentSectionIndex < $formSections.length - 1) {
                         currentSectionIndex++;
                         showCurrentSection();
                     }
                 });
 
-                // --- Handler for "Previous" button click ---
+     
                 $('.prev-step').click(function() {
                     if (currentSectionIndex > 0) {
                         currentSectionIndex--;
@@ -880,29 +875,27 @@ $querySede->execute();
                     }
                 });
 
-                // Show the first section on page load
+           
                 showCurrentSection();
 
 
-                // --- Final Form Submission Handler ---
-                // Assuming formularioPrincipal is your <form> element
+    
                 const formularioPrincipal = document.getElementById('personaForm');
 
-                // Flag to prevent infinite submission loop
+        
                 formularioPrincipal.isSubmitting = false;
 
                 formularioPrincipal.addEventListener('submit', function(evento) {
                     if (formularioPrincipal.isSubmitting) {
-                        return; // If already submitting, let it go through
+                        return; 
                     }
 
-                    evento.preventDefault(); // Prevent default browser submission initially
+                    evento.preventDefault(); 
 
                     let formIsValid = true;
-                    let firstInvalidField = null; // To store the first invalid field found
+                    let firstInvalidField = null; 
 
-                    // --- Validate ALL sections on final submit ---
-                    // Iterate through all sections, and then all required fields within them
+    
                     for (let i = 0; i < $formSections.length; i++) {
                         let currentSection = $formSections.eq(i);
                         let inputsInCurrentSection = currentSection.find(':input[required]'); // All required inputs in the section
@@ -911,11 +904,11 @@ $querySede->execute();
                             let input = inputsInCurrentSection[j];
                             if (!input.checkValidity()) {
                                 formIsValid = false;
-                                // Store the first invalid field
+                             
                                 if (!firstInvalidField) {
                                     firstInvalidField = input;
                                 }
-                                // Add a class for visual feedback (e.g., Bootstrap 'is-invalid')
+                   
                                 $(input).addClass('is-invalid');
                             } else {
                                 $(input).removeClass('is-invalid');
@@ -923,15 +916,10 @@ $querySede->execute();
                         }
                     }
 
-                    // --- Handle Parientes JSON validation (if needed client-side, e.g. min 1 pariente) ---
-                    // This is where you'd add custom client-side logic for the parientes array
-                    // For example, if parientes is required to not be empty
+                  
                     const parientesArrayValue = document.getElementById('parientesArray').value;
                     if (parientesArrayValue === '[]' || parientesArrayValue === '') {
-                        // Example: If at least one pariente is required, and none are added
-                        // This is a custom rule, not covered by HTML5 'required' on a hidden input.
-                        // You'd need to decide where this error appears.
-                        // For simplicity, we'll just let backend handle it, or add a specific error to 'errores' for Swal.
+                
                     }
 
 
@@ -942,33 +930,30 @@ $querySede->execute();
                             text: 'Por favor, complete todos los campos requeridos del formulario antes de enviar.',
                         });
 
-                        // If there's an invalid field, navigate to its section and focus it
+               
                         if (firstInvalidField) {
                             let invalidSectionIndex = $(firstInvalidField).closest('.form-section').index();
                             if (invalidSectionIndex !== -1 && invalidSectionIndex !== currentSectionIndex) {
                                 currentSectionIndex = invalidSectionIndex;
-                                showCurrentSection(); // Make the section visible
+                                showCurrentSection(); 
                             }
-                            // Give a slight delay if needed for visibility changes to apply, then focus
+                          
                             setTimeout(() => {
-                                firstInvalidField.focus(); // Focus the field
+                                firstInvalidField.focus(); 
                             }, 100);
                         }
-                        return; // Stop submission
+                        return; 
                     }
 
-                    // If all client-side validation passes, prepare and submit the form
-                    const parientesJson = JSON.stringify(parientes); // Assuming 'parientes' JS array is managed globally
+                  
+                    const parientesJson = JSON.stringify(parientes);
                     document.getElementById('parientesArray').value = parientesJson;
 
-                    formularioPrincipal.isSubmitting = true; // Set flag
-                    formularioPrincipal.submit(); // Now submit the form natively
+                    formularioPrincipal.isSubmitting = true; 
+                    formularioPrincipal.submit(); 
                 });
 
-                // To manage the 'parientes' array in your JS, ensure you have something like this
-                // (This is a placeholder, adapt to your actual parientes management)
-                // You would add objects to this array as the user adds relatives,
-                // and remove them when they are deleted from the temporary list.
+          
                 
                 //inicio del bloque de codigo encargado del modal de parientes
 
@@ -1017,8 +1002,7 @@ $querySede->execute();
                     var listaHTML = '';
 
                     parientes.forEach(function(pariente) {
-                        // Use a more robust identifier, perhaps cedulaPariente if it's unique, otherwise use an index
-                        // For demonstration, let's stick to using cedulaPariente if available, or a combination
+                      
                         const uniqueIdentifier = `${pariente.nombrePariente}-${pariente.apellidoPariente}`;
 
                         listaHTML += `<li>${pariente.nombrePariente} ${pariente.apellidoPariente} (C.I: ${pariente.cedulaPariente || 'N/A'}) - Parentesco: ${pariente.parentesco}`;
@@ -1029,7 +1013,7 @@ $querySede->execute();
 
                         listaHTML += ` - Género: ${pariente.generoPariente} - Discapacidad: ${pariente.discapacidadPariente} - <strong>C.I del Trabajador: ${pariente.trabajadorId}</strong>`;
 
-                        // Change data-cedula to data-identifier for consistency with retrieval
+                        
                         listaHTML += ` <button type="button" class="btn btn-danger btn-sm ms-2 eliminar-pariente" data-identifier="${uniqueIdentifier}">Eliminar</button></li>`;
                         
                     });
@@ -1037,11 +1021,11 @@ $querySede->execute();
                     $('#lista-parientes').html(listaHTML);
 
                     $('.eliminar-pariente').off('click').on('click', function() {
-                        // Retrieve the data attribute correctly
+                       
                         const identifierToDelete = $(this).data('identifier');
                         console.log(identifierToDelete)
 
-                        // Filter based on the chosen unique identifier
+           
                         parientes = parientes.filter(p => { 
                             const currentIdentifier = `${p.nombrePariente}-${p.apellidoPariente}`;
                             console.log(currentIdentifier)
@@ -1121,9 +1105,9 @@ $querySede->execute();
         </script>
         <script>
                     document.addEventListener("DOMContentLoaded", () => {
-                // These should be your actual HTML element IDs
-                const totalesContainer = document.getElementById('totales'); // Main container for all totals (or maybe specific sections)
-                const generalStatsContainer = document.getElementById('totalPersonas'); // Specific container for general totals
+           
+                const totalesContainer = document.getElementById('totales'); 
+                const generalStatsContainer = document.getElementById('totalPersonas'); 
 
                 fetch('http://10.100.202.66/sistemaIngresoDGTH/index.php/?api=totalRegistros')
                     .then(response => {
@@ -1216,15 +1200,7 @@ $querySede->execute();
                         totalesContainer.innerHTML = `<p>Hubo un problema al cargar los cálculos. Por favor, revise su conexión o intente de nuevo.</p>`;
                     });
             });
-                    /*Variable Renaming: Renamed totales (the HTML element) to totalesContainer to avoid naming conflicts with the data.totales property if you had one, and to better reflect its role as a container. Also renamed data in the second .then() to apiResponse and then extracted const data = apiResponse.data; to clearly distinguish the raw API response from the structured data payload Accessing Data Correctly:
-                    The general totals (totalTrabajadores, totalParientes) are now accessed from data.generales.
-                    The personal by sede is an array found at data.por_sede. I've added a separate forEach loop specifically for this array to display each sede's information.
-                    Improved HTML Structure: Instead of putting everything into a single <ol>, I've separated them into two distinct sections: one for general totals and another for the per-sede breakdown. This makes the displayed information clearer and more organized.
-                    Robust Error Handling:
-                    The throw new Error() in the first .then() now includes the HTTP status code for better debugging.
-                    The catch block now logs the full error object to the console, which is invaluable for debugging network issues.
-                    Added checks for data && data.generales and data && data.por_sede && data.por_sede.length > 0 to prevent errors if parts of the data are missing or empty.
-                    Clearer User Feedback: Provided more specific messages for different error scenarios (HTTP errors, server-side logical errors, network errors).*/
+                    
                     
         </script>
         <script defer>
@@ -1268,12 +1244,11 @@ $querySede->execute();
                     }
                 });
 
-                const mostrar = (dataArray) => { // Renamed parameter for clarity
+                const mostrar = (dataArray) => { 
                     if (!Array.isArray(dataArray)) {
                         console.error("Error: Data passed to mostrar is not an array.", dataArray);
-                        // Decide how to handle this:
-                        // return; // Stop execution if it's not an array
-                        dataArray = []; // Or make it an empty array to avoid crashing map
+                        
+                        dataArray = []; 
                     }
 
                     const labels = dataArray.map(element => element.anoFormato);
@@ -1291,12 +1266,12 @@ $querySede->execute();
                         }
                         return response.json();
                     })
-                    .then(jsonResponse => { // Renamed parameter to be explicit about the full JSON object
+                    .then(jsonResponse => { 
                         if (jsonResponse && jsonResponse.success && Array.isArray(jsonResponse.data)) {
-                            mostrar(jsonResponse.data); // Pass only the 'data' array to 'mostrar'
+                            mostrar(jsonResponse.data); 
                         } else {
                             console.error("API response structure is not as expected:", jsonResponse);
-                            // Optionally call mostrar with an empty array or handle error
+                      
                             mostrar([]); 
                         }
                     })
@@ -1306,21 +1281,20 @@ $querySede->execute();
             </script>
 
             <script defer>
-            //Script para validar si la cedula del pariente ya se encuentra registrada , antes de hacer dicho registro en la base de datos
-                // Obtener referencias a los elementos HTML
+          
                 const cedulaPariente = document.getElementById('cedulaPariente');
                 const cedulaError = document.getElementById('cedulaParienteError');
                 
 
-                // Variable para controlar el retraso en la petición AJAX (debounce)
+              
                 let debounceTimerPariente;
 
                 // --- Función para realizar la validación de formato inicial (local) ---
-                // La dejamos casi igual, pero ahora solo para validaciones rápidas del formato.
+             
                 function validarFormatoCedulaLocalPariente(cedulaPariente) {
                     const cedulaLimpia = cedulaPariente.replace(/[^0-9VEJvej]/gi, ''); // Permite números y letras V, E, J
-                    // Considera una longitud mínima razonable antes de enviar al backend
-                    if (cedulaLimpia.length < 5) { // Por ejemplo, 5 dígitos mínimos para empezar a validar con backend
+                 
+                    if (cedulaLimpia.length < 5) { 
                         return 'Cédula muy corta.';
                     }
                     
@@ -1355,7 +1329,7 @@ $querySede->execute();
 
                         debounceTimerPariente = setTimeout(() => {
                             // Construye la URL de la API con la cédula como parámetro
-                            // Asegúrate de codificar la cédula para URLs seguras
+                          
                     
                             const apiUrl = `http://10.100.202.66/sistemaIngresoDGTH/index.php/?api=validarCedulaPariente&id=` + cedulaValor;
 
@@ -1378,7 +1352,7 @@ $querySede->execute();
                                             
                                           
                                             
-                                            // Opcional: podrías deshabilitar el botón de enviar o resaltar el campo
+                                       
                                         } else {
                                             cedulaError.textContent = '*¡Cedula Disponible!*';
                                             
