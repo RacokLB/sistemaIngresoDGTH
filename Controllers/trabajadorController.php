@@ -23,7 +23,7 @@ use PDO;
         public function validarCedula(int $cedula) {
             
             // Opcional: Limpiar y estandarizar la cédula aquí también,
-            // aunque tu router ya debería hacerlo antes de pasártela.
+           
             $cedulaLimpia = preg_replace('/[^0-9VEJ]/i', '', $cedula);
             
 
@@ -79,23 +79,23 @@ use PDO;
         }
 
         /**
-         * Summary of obtenerTrabajadoresRecientes
+         * Resultados de obtenerTrabajadores
          * @return void
          */
         public function obtenerTrabajadoresRecientes(): void{
             $trabajadores = $this->trabajadorRepository->obtenerUltimosTrabajadores();
-           if (!empty($trabajadores) || $trabajadores === []) { // Check if it returned an empty array or actual data
+           if (!empty($trabajadores) || $trabajadores === []) { 
                     header('Content-Type: application/json');
                     echo json_encode(['success' => true, 'data' => $trabajadores]);
                 } else {
                     header('Content-Type: application/json');
-                    http_response_code(500); // Internal Server Error
+                    http_response_code(500); 
                     echo json_encode(['success' => false, 'message' => 'Error al obtener los trabajadores.']);
                 }
         }
         /**
          * Muestra la lista de todos los trabajadores.
-         * Summary of listarTrabajadores where we fetch all functionary
+         * Recopilacion de listarTrabajadores donde traemos a todos los trabajadores
          * @return void
          */
         
@@ -293,7 +293,7 @@ use PDO;
 
                 
                     // 2. Crear una instancia del objeto Trabajador
-                $nuevoTrabajador = new \Models\Entities\Trabajador( // Coloca el namespace de la Entidad
+                $nuevoTrabajador = new \Models\Entities\Trabajador( 
                     null, // El ID se generará automáticamente
                     $datosTrabajador['cedula'] ?? null,
                     $datosTrabajador['nacionalidad'] ?? null,
@@ -334,7 +334,7 @@ use PDO;
                 // 3. Recibir y decodificar el JSON de parientes 
                 $parientesJSON = $_POST['parientesArray'] ?? '[]';
                 
-                // Add this specific check to log what's actually being passed to json_decode
+               
                 error_log("Attempting to decode parientesJSON: '" . $parientesJSON . "'");
 
                 $parientes = json_decode($parientesJSON, true);
@@ -347,7 +347,7 @@ use PDO;
                         $nuevoTrabajador->parientes = $parientes;
             
                     }else{
-                        // This block is for actual JSON syntax errors.
+                        // Bloque de codigo para manejar errores en formato JSON.
                         $errorMessage = 'Error al decodificar la información de parientes: ' . json_last_error_msg();
                         error_log($errorMessage . " | Input that failed: '" . $parientesJSON . "'");
                         $errores['parientes'] = $errorMessage;
@@ -356,15 +356,15 @@ use PDO;
                         http_response_code(400);
                         header('Content-Type: application/json');
                         echo json_encode(['errors' => $errores]);
-                        //Se puede redirigir o mostrar un error al usuario
+                        
                         return;
                     }
                 }else{
-                        // This block will be hit if $_POST['parientesJson'] is null or an empty string ""
+                        // Verifica if $_POST['parientesJson'] es null o avoid ""
                         error_log("parientesJson is empty or null, no relatives to process.");
-                        // In this case, it's fine if there are no relatives.
-                        // Ensure $nuevoTrabajador->parientes is initialized to an empty array
-                        $nuevoTrabajador->parientes = []; // Important: Initialize to empty array if no relatives
+                        
+                        // Asegura $nuevoTrabajador->parientes es inicializado como un array vacio
+                        $nuevoTrabajador->parientes = []; 
                 }
 
                 //El campo parientes es el nombre del input hidden en el formulario HTML
@@ -397,7 +397,7 @@ use PDO;
      */
     public function actualizarTrabajador(int $cedula) {
         // 1. Obtener los datos actualizados del trabajador desde la petición (PUT data, etc.)
-        // (Similar a crearTrabajador, pero asegurándote de incluir el ID)
+        // (Similar a crearTrabajador, pero se debe incluir el ID)
 
             // Leer el cuerpo de la petición (InputStream) que contiene el JSON
         $jsonDatos = file_get_contents(filename: 'php://input');
@@ -409,8 +409,7 @@ use PDO;
         // Decodificar el JSON a un array asociativo de PHP
         $datosActualizados = json_decode($jsonDatos, true);
 
-        //DEBUGGING IN THE START
-        // Log the decoded data
+       
         error_log("Decoded data for actualizarTrabajador: ". print_r($datosActualizados, true));
 
         
@@ -481,7 +480,7 @@ use PDO;
     public function eliminarTrabajador(int $cedula) {
         if ($this->trabajadorRepository->eliminar($cedula)) {
             http_response_code(204); // Código de "Sin contenido" (eliminación exitosa)
-            // No se suele enviar cuerpo en la respuesta 204
+            
         } else {
             http_response_code(404);
             header('Content-Type: application/json');
@@ -497,8 +496,7 @@ use PDO;
      */
         public function validarPariente(int $cedulaPariente) {
             
-            // Opcional: Limpiar y estandarizar la cédula aquí también,
-            // aunque tu router ya debería hacerlo antes de pasártela.
+          
             $cedulaDepurada = preg_replace('/[^0-9VEJ]/i', '', $cedulaPariente);
             
 
@@ -537,14 +535,6 @@ use PDO;
                 echo json_encode(['error' => 'No se encontraron parientes para el trabajador']);
             }
         }
-
-        /**
-         * Proceso de creacion de un nuevo pariente
-         * 
-         * @return void//0 no tiene que devolver ningun dato, solo necesitamos una confirmacion de exito o fracaso
-         */
-
-        
 
         /**
          * Muestra los detales de un pariente en especifico por su ID
@@ -588,8 +578,7 @@ use PDO;
                 //Decodificar el JSON a un array asociativo de PHP
                 $datosActualizados = json_decode($jsonDatos, true);
                 
-                // --- DEBUGGING START ---
-                // Log the decoded data
+              
                 error_log("Decoded data for actualizarPariente: " . print_r($datosActualizados, true));
 
                 //verificar si la decodificacion del JSON fue exitosa
@@ -626,7 +615,7 @@ use PDO;
                 $parienteExistente->setDiscapacidadPariente($datosActualizados['discapacidadPariente'] ??
                     $parienteExistente->getDiscapacidadPariente());
         
-                //5. Guardar los cambios utilizando el Repository (asumiendo que tienes un método para actualizar por ID)
+                //5. Guardar los cambios utilizando el Repository
                 if($this->trabajadorRepository->actualizarPariente($parienteExistente)){
                     header(header:'Content-Type: application/json');
                     echo json_encode(['message' => 'Pariente actualizado con exito']);
