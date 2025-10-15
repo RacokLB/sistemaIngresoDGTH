@@ -1,16 +1,13 @@
 <?php
 
-    require_once '/xampp/htdocs/sistemaIngresoDGTH/Config/POOConexion.php'; // Incluye tu archivo de conexión
+    require_once '/xampp/htdocs/sistemaIngresoDGTH/Config/POOConexion.php'; 
 
-        header('Content-Type: application/json'); // Indica que la respuesta será JSON
+        header('Content-Type: application/json');
 
-        $cantidad_a_mostrar = isset($_GET['cantidad']) ? (int)$_GET['cantidad'] : 5; // Obtener la cantidad de la URL, por defecto 5
+        $cantidad_a_mostrar = isset($_GET['cantidad']) ? (int)$_GET['cantidad'] : 5; 
 
         try {
             // Consulta SQL para obtener los últimos trabajadores
-            // ORDER BY id DESC: Ordena por el ID de forma descendente (los más nuevos tienen IDs más altos)
-            // o puedes usar ORDER BY fecha_registro DESC si tienes esa columna.
-            // LIMIT $cantidad_a_mostrar: Limita el número de resultados.
             $stmt = $pdo->prepare("SELECT cedula, nombre, apellido FROM tabla_personal ORDER BY id DESC LIMIT :cantidad");
             $stmt->bindParam(':cantidad', $cantidad_a_mostrar, PDO::PARAM_INT);
             $stmt->execute();
