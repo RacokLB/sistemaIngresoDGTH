@@ -17,7 +17,7 @@
 }
 
 .slider .slide img {
-    width: 100%;/* del tamaño de su contenedor el cual es 200px */
+    width: 100%;
 }
 
 @keyframes scroll {
