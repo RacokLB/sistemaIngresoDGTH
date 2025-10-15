@@ -6,7 +6,7 @@
             if(!isset($_SESSION['rol'])){
                 header("location: login.php");
             }else{
-                if($_SESSION['rol'] != 1){ // Es buena práctica usar '!=' en lugar de '!='
+                if($_SESSION['rol'] != 1){ 
                     header("location: login.php");
                 }
             }
@@ -322,16 +322,16 @@ include_once("../Enrutador/enrutador.php");
     $(document).ready(function(){
         $('#tabla').DataTable({
             processing: true,
-            serverSide: false, // Keep this as false if your API returns all data at once
+            serverSide: false, 
             ajax: {
-                url: 'http://localhost/sistemaIngresoDGTH/index.php/?api=parientes', // Your API endpoint
-                dataSrc: '' // Your API directly returns an array
+                url: 'http://localhost/sistemaIngresoDGTH/index.php/?api=parientes', 
+                dataSrc: '' 
             },
             columns: [
-                // Column 1: N° (ID, but can be a counter if you want to display sequential numbering)
+                
                 
                 { data: 'idPariente'},
-                { data: 'trabajadorId'}, // Assuming your JSON key is 'cedula'
+                { data: 'trabajadorId'}, 
                 { data: 'cedulaPariente' },
                 { data: 'nombrePariente' },
                 { data: 'apellidoPariente' },
@@ -340,10 +340,10 @@ include_once("../Enrutador/enrutador.php");
                 { data: 'generoPariente' },
                 { data: 'discapacidadPariente' },
                 {
-                    // Actions column
-                    data: null, // This column doesn't map directly to a data field
+                 
+                    data: null, 
                     render: function(data, type, row) {
-                        // 'row' contains the full data object for the current row
+                     
                         const parienteId = row.idPariente;
                       
                         return `
@@ -355,23 +355,23 @@ include_once("../Enrutador/enrutador.php");
                             </button>
                         `;
                     },
-                    orderable: false, // Actions column is not orderable
-                    searchable: false // Actions column is not searchable
+                    orderable: false, 
+                    searchable: false 
                 }
             ],
-            // Optional: DataTables Features
-            dom: 'lBfrtip', // Defines the layout of DataTables elements (Length, Buttons, Filter, Table, Info, Pagination)
+    
+            dom: 'lBfrtip',
             buttons: [
                 'excelHtml5',
                 'csvHtml5',
                 'pdfHtml5',
                 'print',
-                'colvis' // Column visibility toggle
+                'colvis'
             ],
-            colReorder: true, // Enable column reordering
-            responsive: true, // Enable responsive design
+            colReorder: true,
+            responsive: true,
             language: {
-                url: 'https://cdn.datatables.net/plug-ins/2.0.7/i18n/es-ES.json' // Spanish language file
+                url: 'https://cdn.datatables.net/plug-ins/2.0.7/i18n/es-ES.json' 
             }
         });
         // Función para abrir el modal de edición y cargar datos
@@ -433,8 +433,8 @@ include_once("../Enrutador/enrutador.php");
             
 
                 $.ajax({
-                    url: 'http://10.100.202.66/sistemaIngresoDGTH/index.php/?api=actualizarPariente&id=' + ID, // Asume que tu API maneja PUT por ID
-                    type: 'PATCH', // O 'POST' si tu API asi lo indica
+                    url: 'http://10.100.202.66/sistemaIngresoDGTH/index.php/?api=actualizarPariente&id=' + ID, // Asume que la API maneja PATCH por ID
+                    type: 'PATCH', 
                     contentType: 'application/json', // Importante para enviar JSON
                     data: JSON.stringify(data), // Enviar los datos como JSON
                     success: function(response) {
@@ -462,7 +462,7 @@ include_once("../Enrutador/enrutador.php");
         $(document).on('click', '.eliminar-btn', function() {
             const ID = $(this).data('id');
             console.log('Boton de eliminar presionado y este es el ID del pariente', ID);
-            // Use SweetAlert2 for a confirmation dialog
+            // Usa SweetAlert2 para confirmacion 
             Swal.fire({
                 title: '¿Estás seguro?',
                 text: "¡No podrás revertir esto!",
@@ -474,17 +474,17 @@ include_once("../Enrutador/enrutador.php");
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Perform the deletion via AJAX
+                   
                     $.ajax({
-                        url: 'http://10.100.202.66/sistemaIngresoDGTH/index.php/?api=eliminarPariente&id=' + ID, // Your API endpoint for deletion
-                        type: 'DELETE', // Use DELETE HTTP method
+                        url: 'http://10.100.202.66/sistemaIngresoDGTH/index.php/?api=eliminarPariente&id=' + ID, 
+                        type: 'DELETE',
                         success: function(response) {
                             Swal.fire(
                                 '¡Eliminado!',
                                 'El pariente ha sido eliminado.',
                                 'success'
                             );
-                            // Reload the DataTables table to reflect changes
+                           
                             $('#tabla').DataTable().ajax.reload();
                         },
                         error: function(xhr, status, error) {
