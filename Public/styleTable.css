@@ -32,7 +32,7 @@ h4 {
     color: var(--bs-emphasis-color);
 }
 
-/* Layout for admin dashboard skeleton */
+/* Admin dashboard */
 
 .wrapper {
     align-items: stretch;
@@ -58,7 +58,7 @@ h4 {
     background: var(--bs-dark-bg-subtle);
 }
 
-/* Sidebar Elements Style */
+/* Elementos de la sidebar y sus estilos */
 
 .sidebar-logo {
     padding: 1.15rem;
@@ -152,7 +152,7 @@ a.sidebar-link {
     margin-left: -264px;
 }
 
-/* Footer and Nav */
+/* Footer y Nav */
 
 @media (max-width:767.98px) {
 
@@ -170,7 +170,7 @@ a.sidebar-link {
     }
 }
 
-/* Theme Toggler */
+/* Tema Toggler */
 
 .theme-toggle {
     position: fixed;
