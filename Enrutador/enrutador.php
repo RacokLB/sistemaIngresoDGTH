@@ -1,17 +1,16 @@
 <?php
 // Set CORS headers
-        header("Access-Control-Allow-Origin: *"); // ONLY allow requests from this specific IP
-        header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE"); // Allow these HTTP methods
-        header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept"); // Allow these headers
+        header("Access-Control-Allow-Origin: *"); 
+        header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE"); 
+        header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept"); 
 
-        // Handle preflight OPTIONS requests
-        // Browsers send an OPTIONS request before certain cross-origin requests
+        
         if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
             http_response_code(200);
             exit();
         }
 
-// Asegúrate de incluir el namespace correcto de tu controlador
+// Incluir el namespace correcto del controlador
 
 use sistemaIngresoDGTH\Controllers\TrabajadorController;
 
@@ -23,8 +22,7 @@ class Enrutador {
     private $trabajadorController;
 
 
-    //A constructor allows you to initialize an object's properties upon creation of the object.PHP will automatically call this function when you create an object from a class.
-
+   
     public function __construct(PDO $pdo) {
         // Inyecta la dependencia de PDO al instanciar el controlador
     
@@ -51,7 +49,7 @@ class Enrutador {
             return in_array($vista, $vistasValidas);
         }
 
-    // Nuevo método para manejar las llamadas a la API
+    // Método para manejar las llamadas a la API
         public function cargarAPI() {
         if (isset($_GET['api'])) {
             $apiLlamada = $_GET['api'];
@@ -72,7 +70,7 @@ class Enrutador {
                 "pariente"           => [$this->trabajadorController, 'mostrarPariente'],
                 "actualizarPariente" => [$this->trabajadorController, 'actualizarPariente'],
                 "eliminarPariente"   => [$this->trabajadorController, 'eliminarPariente']
-                // Agrega más rutas según sea necesario
+                
             ];
             
 
