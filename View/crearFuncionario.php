@@ -729,7 +729,7 @@ $querySede->execute();
                                             
                                           
                                             
-                                            // Opcional: podrías deshabilitar el botón de enviar o resaltar el campo
+                                    
                                         } else {
                                             cedulaError.textContent = '*¡Cedula Disponible!*';
                                             
@@ -898,8 +898,7 @@ $querySede->execute();
     
                     for (let i = 0; i < $formSections.length; i++) {
                         let currentSection = $formSections.eq(i);
-                        let inputsInCurrentSection = currentSection.find(':input[required]'); // All required inputs in the section
-
+                        let inputsInCurrentSection = currentSection.find(':input[required]'); 
                         for (let j = 0; j < inputsInCurrentSection.length; j++) {
                             let input = inputsInCurrentSection[j];
                             if (!input.checkValidity()) {
@@ -1112,22 +1111,22 @@ $querySede->execute();
                 fetch('http://10.100.202.66/sistemaIngresoDGTH/index.php/?api=totalRegistros')
                     .then(response => {
                         if (!response.ok) {
-                            // Throw an error with the response status for better debugging
+                            
                             throw new new Error(`HTTP error! status: ${response.status}`);
                         }
                         return response.json();
                     })
                     .then(apiResponse => {
                         if (apiResponse.success) {
-                            console.log('API Response:', apiResponse); // Log the full API response to see its structure
+                            console.log('API Response:', apiResponse); 
 
-                            const data = apiResponse.data; // Access the actual data object
+                            const data = apiResponse.data; 
 
-                            // Clear previous content in both containers
+                            // Limpia ambos contenedores
                             generalStatsContainer.innerHTML = '';
                             totalesContainer.innerHTML = '';
 
-                            // --- Display General Totals (totalTrabajadores, totalParientes) ---
+                            // --- Muestra en pantalla los totales (totalTrabajadores, totalParientes) ---
                             if (data && data.totalPersonas) {
                                 console.log(data.totalPersonas)
                                 const generalHtml = `
@@ -1140,12 +1139,12 @@ $querySede->execute();
                                         </a>
                                     </div>
                                 `;
-                                generalStatsContainer.innerHTML = generalHtml; // Assign directly to its container
+                                generalStatsContainer.innerHTML = generalHtml; 
                             } else {
                                 generalStatsContainer.innerHTML = `<p>No se pudieron cargar los totales generales.</p>`;
                             }
 
-                            // --- Display Personal per Sede (por_sede array) ---
+                            // --- Muestra Personal por Sede (por_sede array) ---
                             if (data && data.por_sede && data.por_sede.length > 0) {
                                 let tableHtml = `
                                     
@@ -1178,24 +1177,24 @@ $querySede->execute();
                                         </tfoot>
                                     </table>
                                 `;
-                                totalesContainer.innerHTML = tableHtml; // Assign to the main container
+                                totalesContainer.innerHTML = tableHtml; 
                             } else if (data && data.por_sede && data.por_sede.length === 0) {
-                                // Handle case where there are no sedes or no personal assigned to sedes
+                                
                                 totalesContainer.innerHTML = `<p>No hay personal asignado por sede disponible.</p>`;
                             } else {
-                                // Fallback for when 'por_sede' data structure is missing or malformed
+                               
                                 totalesContainer.innerHTML = `<p>No se pudieron cargar los detalles por sede.</p>`;
                             }
 
                         } else {
-                            // API returned success: false
+                           
                             totalesContainer.innerHTML = `<p>Error del servidor: ${apiResponse.message || 'Mensaje de error desconocido'}</p>`;
-                            generalStatsContainer.innerHTML = ''; // Clear if there's an API error
+                            generalStatsContainer.innerHTML = ''; 
                         }
                     })
                     .catch(error => {
-                        // Network error, CORS issue, or JSON parsing error
-                        console.error('Fetch error:', error); // Log the actual error for debugging
+                       
+                        console.error('Fetch error:', error); 
                         generalStatsContainer.innerHTML = `<p>Error de conexión: ${error.message}.</p>`;
                         totalesContainer.innerHTML = `<p>Hubo un problema al cargar los cálculos. Por favor, revise su conexión o intente de nuevo.</p>`;
                     });
