@@ -5,7 +5,7 @@
             if(!isset($_SESSION['rol'])){
                 header("location: login.php");
             }else{
-                if($_SESSION['rol'] != 1){ // Es buena práctica usar '!=' en lugar de '!='
+                if($_SESSION['rol'] != 1){
                     header("location: login.php");
                 }
             }
@@ -74,7 +74,7 @@ $directores -> execute();
 <body>
   <div class="wrapper">
     <aside id="sidebar" class="js-sidebar">
-      <!-- Content For Sidebar -->
+     
       <div class="h-100">
         <div class="sidebar-logo">
           <a href="#">CNE</a>
@@ -500,18 +500,18 @@ $directores -> execute();
     $(document).ready(function(){
       
         $('#tabla').DataTable({
-            order:[[0,'DESC']],// [[COLUMN, ORDER BY ]]
+            order:[[0,'DESC']],
             processing: true,
-            serverSide: false, // Keep this as false if your API returns all data at once
+            serverSide: false,
             ajax: {
-                url: 'http://localhost/sistemaIngresoDGTH/index.php/?api=trabajadores', // Your API endpoint
-                dataSrc: '' // Your API directly returns an array
+                url: 'http://localhost/sistemaIngresoDGTH/index.php/?api=trabajadores', 
+                dataSrc: ''
             },
             columns: [
-                // Column 1: N° (ID, but can be a counter if you want to display sequential numbering)
+                
                 
                 { data: 'id'},
-                { data: 'cedula'}, // Assuming your JSON key is 'cedula'
+                { data: 'cedula'}, 
                 { data: 'nacionalidad' },
                 { data: 'rif' },
                 { data: 'apellido' },
@@ -527,10 +527,10 @@ $directores -> execute();
                 { data: 'cargoDirector'},
   
                 {
-                    // Actions column
-                    data: null, // This column doesn't map directly to a data field
+                 
+                    data: null, 
                     render: function(data, type, row) {
-                        // 'row' contains the full data object for the current row
+                       
                         const trabajadorCedula = row.cedula;
                  
                         return `
@@ -542,23 +542,23 @@ $directores -> execute();
                             </button>
                         `;
                     },
-                    orderable: false, // Actions column is not orderable
-                    searchable: false // Actions column is not searchable
+                    orderable: false, 
+                    searchable: false 
                 }
             ],
-            // Optional: DataTables Features
-            dom: 'lBfrtip', // Defines the layout of DataTables elements (Length, Buttons, Filter, Table, Info, Pagination)
+          
+            dom: 'lBfrtip', 
             buttons: [
                 'excelHtml5',
                 'csvHtml5',
                 'pdfHtml5',
                 'print',
-                'colvis' // Column visibility toggle
+                'colvis'
             ],
-            colReorder: true, // Enable column reordering
-            responsive: true, // Enable responsive design
+            colReorder: true, 
+            responsive: true, 
             language: {
-                url: 'https://cdn.datatables.net/plug-ins/2.0.7/i18n/es-ES.json' // Spanish language file
+                url: 'https://cdn.datatables.net/plug-ins/2.0.7/i18n/es-ES.json' 
             }
         });
         // Función para abrir el modal de edición y cargar datos
@@ -627,23 +627,21 @@ $directores -> execute();
             $('#guardarCambiosTrabajador').on('click', function() {
                 const trabajadorCedula = $('#editCedula').val();
                 const formData = $('#formEditTrabajador').serializeArray();
-                //console.log('formulario de actualizacion',formData)
+               
                 const data = {};
-                //console.log('Esta es la cedula del trabajador seleccionado', trabajadorCedula);
+                
                 formData.forEach(function(item) {
                     data[item.name] = item.value;
                     
                 });
-                //console.log for debugging 
-                //console.log('JSON data being sent to backend:', data)
-                //console.log('Value of sede in data:', data.ubicacion)
+            
             
 
                 $.ajax({
-                    url: 'http://10.100.202.66/sistemaIngresoDGTH/index.php/?api=actualizarTrabajador&id=' + trabajadorCedula, // Asume que tu API maneja PUT por ID
-                    type: 'PATCH', // O 'POST' si tu API asi lo indica
-                    contentType: 'application/json', // Importante para enviar JSON
-                    data: JSON.stringify(data), // Enviar los datos como JSON
+                    url: 'http://10.100.202.66/sistemaIngresoDGTH/index.php/?api=actualizarTrabajador&id=' + trabajadorCedula, 
+                    type: 'PATCH',
+                    contentType: 'application/json', 
+                    data: JSON.stringify(data), 
                     success: function(response) {
                       console.log('cuerpo del json listo para enviar', data)
                         Swal.fire(
@@ -669,7 +667,7 @@ $directores -> execute();
           $(document).on('click', '.eliminar-btn', function() {
               const trabajadorId = $(this).data('id');
               console.log('Boton de eliminar presionado y este es el ID del funcionario', trabajadorId);
-              // Use SweetAlert2 for a confirmation dialog
+              
               Swal.fire({
                   title: '¿Estás seguro?',
                   text: "¡No podrás revertir esto!",
@@ -681,17 +679,17 @@ $directores -> execute();
                   cancelButtonText: 'Cancelar'
               }).then((result) => {
                   if (result.isConfirmed) {
-                      // Perform the deletion via AJAX
+                 
                       $.ajax({
-                          url: 'http://10.100.202.66/sistemaIngresoDGTH/index.php/?api=eliminarTrabajador&id=' + trabajadorId, // Your API endpoint for deletion
-                          type: 'DELETE', // Use DELETE HTTP method
+                          url: 'http://10.100.202.66/sistemaIngresoDGTH/index.php/?api=eliminarTrabajador&id=' + trabajadorId, 
+                          type: 'DELETE', 
                           success: function(response) {
                               Swal.fire(
                                   '¡Eliminado!',
                                   'El trabajador ha sido eliminado.',
                                   'success'
                               );
-                              // Reload the DataTables table to reflect changes
+                              
                               $('#tabla').DataTable().ajax.reload();
                           },
                           error: function(xhr, status, error) {
