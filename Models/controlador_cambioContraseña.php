@@ -1,7 +1,7 @@
 <?php
         
     require_once "../Config/abrir_conexion.php";
-    //THIS FILE.PHP IS MAKE WITH THE PURPOSE TO CHANGE PASSWORD OF USER 
+   
 
         if(isset($_POST['modificacionBtn'])){
 
