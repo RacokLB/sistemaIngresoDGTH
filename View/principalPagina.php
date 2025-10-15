@@ -4,7 +4,7 @@
             if(!isset($_SESSION['rol'])){
                 header("location: login.php");
             }else{
-                if($_SESSION['rol'] != 1){ // Es buena práctica usar '!=' en lugar de '!='
+                if($_SESSION['rol'] != 1){
                     header("location: login.php");
                 }
             }
@@ -27,8 +27,8 @@
             --color-primario-neutro: #f8f9fa; /* Gris muy claro / Blanco */
             --color-secundario-neutro: #e9ecef; /* Gris claro */
             --color-texto: #343a40; /* Gris oscuro para texto */
-            --color-acento-1: #007bff; /* Azul brillante, formal pero llamativo */
-            --color-acento-2: #28a745; /* Verde, para éxito/acción, también llamativo */
+            --color-acento-1: #007bff; /* Azul brillante */
+            --color-acento-2: #28a745; /* Verde, para éxito/acción */
             --color-hover: #0056b3; /* Azul más oscuro para hover */
         }
 
@@ -62,7 +62,7 @@
         }
 
         .jumbotron {
-            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('../Public/images/hero-background.jpg') no-repeat center center/cover; /* Asegúrate de tener una imagen en esta ruta */
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('../Public/images/hero-background.jpg') no-repeat center center/cover; 
             color: white;
             padding: 100px 0;
             text-align: center;
@@ -111,7 +111,7 @@
         }
 
         .list-unstyled li::before {
-            content: "✔"; /* Icono de check */
+            content: "✔"; 
             color: var(--color-acento-2);
             font-weight: bold;
             display: inline-block;
@@ -119,7 +119,7 @@
             margin-left: -1em;
         }
 
-        /* Responsive adjustments */
+        
         @media (max-width: 768px) {
             .jumbotron h1 {
                 font-size: 2.5rem;
