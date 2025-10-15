@@ -27,13 +27,13 @@
        
 
 
-        require_once 'Config/abrir_conexion.php'; // Asegúrate de que este archivo exista y configure la conexión PDO
+        require_once 'Config/abrir_conexion.php'; 
         require_once 'Enrutador/enrutador.php';
         
-        require_once 'Controllers/TrabajadorController.php'; // Asegúrate de que la ruta sea correcta
+        require_once 'Controllers/TrabajadorController.php'; 
         
-        require_once 'Models/Repositories/trabajadorRepository.php'; // Asegúrate de que la ruta sea correcta
-        require_once 'Models/Entities/Trabajador.php'; // Asegúrate de que la ruta sea correcta
+        require_once 'Models/Repositories/trabajadorRepository.php'; 
+        require_once 'Models/Entities/Trabajador.php'; 
         
 
 
